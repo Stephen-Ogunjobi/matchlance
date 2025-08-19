@@ -8,6 +8,14 @@ const authConfig = {
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
   ],
+  pages: {
+    signIn: "/",
+  },
+  callbacks: {
+    async redirect({ baseUrl }: { url: string; baseUrl: string }) {
+      return baseUrl;
+    },
+  },
 };
 
 export const {
