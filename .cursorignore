@@ -1,0 +1,32 @@
+# Cursor ignore patterns
+# Add patterns here to exclude files/folders from Cursor's indexing
+
+# Dependencies
+node_modules/
+.npm/
+
+# Build outputs
+.next/
+dist/
+build/
+
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp

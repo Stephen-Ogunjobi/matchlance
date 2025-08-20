@@ -1,0 +1,240 @@
+## **Complete Prisma + Supabase Integration Guide**
+
+### **Step 1: Install Prisma Dependencies**
+
+```bash
+npm install prisma @prisma/client
+npm install -D prisma
+```
+
+### **Step 2: Initialize Prisma**
+
+```bash
+npx prisma init
+```
+
+This creates:
+
+- `prisma/` folder
+- `prisma/schema.prisma` file
+- `.env` file template
+
+### **Step 3: Configure Database Connection**
+
+Edit `prisma/schema.prisma`:
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+```
+
+### **Step 4: Set Up Environment Variables**
+
+Create `.env` file:
+
+```env
+DATABASE_URL="postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-1-sa-east-1.pooler.supabase.com:5432/postgres"
+```
+
+Create `.env.local` file:
+
+```env
+DATABASE_URL="postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-1-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+NEXT_PUBLIC_SUPABASE_URL=https://[YOUR-PROJECT-REF].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[YOUR-ANON-KEY]
+```
+
+### **Step 5: Design Your Database Schema**
+
+Edit `prisma/schema.prisma` with your models:
+
+```prisma
+model User {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  name          String?
+  image         String?
+  role          String    @default("user")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime? @default(now()) @map("updated_at")
+
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String  @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?    @map("expires_at")
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("account")
+}
+
+model Session {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionToken String    @unique @map("session_token")
+  userId       String    @map("user_id") @db.Uuid
+  expires      DateTime
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime? @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+```
+
+### **Step 6: Push Schema to Database**
+
+```bash
+npx prisma db push
+```
+
+This creates/updates tables in your Supabase database.
+
+### **Step 7: Generate Prisma Client**
+
+```bash
+npx prisma generate
+```
+
+This creates the TypeScript client for your app.
+
+### **Step 8: Integrate with Next.js**
+
+Create `app/_lib/prisma.ts`:
+
+```typescript
+import { PrismaClient } from "@prisma/client";
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+```
+
+### **Step 9: Use in Your App**
+
+```typescript
+import { prisma } from "@/app/_lib/prisma";
+
+// Example: Create user
+const user = await prisma.user.create({
+  data: {
+    email: "user@example.com",
+    name: "John Doe",
+    role: "user",
+  },
+});
+
+// Example: Find user
+const user = await prisma.user.findUnique({
+  where: { email: "user@example.com" },
+});
+```
+
+---
+
+## **Essential Prisma Commands**
+
+### **Database Management**
+
+```bash
+npx prisma db push          # Push schema changes to database
+npx prisma db pull          # Pull database schema to Prisma
+npx prisma migrate dev      # Create and apply migrations
+npx prisma migrate reset    # Reset database and apply migrations
+npx prisma db seed         # Run seed scripts
+```
+
+### **Client Management**
+
+```bash
+npx prisma generate        # Generate/regenerate Prisma client
+npx prisma validate        # Validate schema syntax
+```
+
+### **Development Tools**
+
+```bash
+npx prisma studio          # Open database GUI
+npx prisma studio --port 5555  # Custom port
+```
+
+### **Schema Management**
+
+```bash
+npx prisma format          # Format schema file
+npx prisma db push --force-reset  # Reset database completely
+```
+
+---
+
+## **Common Issues & Solutions**
+
+### **Issue: "Environment variable not found: DATABASE_URL"**
+
+**Solution:** Ensure `.env` file exists (not just `.env.local`)
+
+### **Issue: "Can't reach database server"**
+
+**Solution:**
+
+- Check Supabase dashboard - database might be paused
+- Verify connection string in `.env`
+- Try direct connection (port 5432) instead of pooled (port 6543)
+
+### **Issue: "EPERM: operation not permitted"**
+
+**Solution:**
+
+- Close development server (`npm run dev`)
+- Kill Node processes: `taskkill /f /im node.exe`
+- Run terminal as Administrator
+- Restart computer if needed
+
+### **Issue: "Unknown argument" errors**
+
+**Solution:**
+
+- Run `npx prisma generate` after schema changes
+- Ensure schema and database are in sync with `npx prisma db push`
+
+---
+
+## **Best Practices**
+
+1. **Always use both `.env` and `.env.local`**
+2. **Close dev server before running Prisma commands**
+3. **Test schema changes incrementally**
+4. **Use `@default()` for required fields**
+5. **Map database column names with `@map()`**
+6. **Use UUIDs for IDs in Supabase: `@db.Uuid`**
+
+This setup gives you a fully functional Prisma + Supabase integration with Next.js! 🚀

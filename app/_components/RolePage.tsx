@@ -1,5 +1,6 @@
 import { auth } from "../_lib/auth";
 import Nav from "./Nav";
+import RoleBtn from "./RoleBtn";
 
 export default async function RolePage() {
   const session = await auth();
@@ -54,31 +55,8 @@ export default async function RolePage() {
                 to graphic design, connect with professionals who can bring your
                 vision to life.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <a
-                  href="/clients"
-                  className="btn-gradient-primary flex-1 text-center group-hover:scale-105 transform"
-                >
-                  Browse Freelancers
-                </a>
-                <button className="sm:w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-colors duration-200">
-                  <svg
-                    className="w-5 h-5 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </div>
             </div>
+            <RoleBtn role="client" />
           </div>
 
           {/* Freelancer Card */}
@@ -113,31 +91,8 @@ export default async function RolePage() {
                 portfolio, grow your network, and take your freelance career to
                 the next level.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <a
-                  href="/freelancers"
-                  className="btn-gradient-secondary flex-1 text-center group-hover:scale-105 transform"
-                >
-                  Find Projects
-                </a>
-                <button className="sm:w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-colors duration-200">
-                  <svg
-                    className="w-5 h-5 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </div>
             </div>
+            <RoleBtn role="freelancer" />
           </div>
         </div>
 
