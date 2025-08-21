@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import type { Session, User } from "next-auth";
+import type { Session, User, Account, Profile } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
 const prisma = new PrismaClient();
@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 const authConfig = {
   adapter: PrismaAdapter(prisma), // Re-enabled - Prisma client is working!
   session: {
-    strategy: "jwt", // Keep JWT for performance
+    strategy: "jwt" as const, // Keep JWT for performance
   },
   providers: [
     Google({
@@ -32,13 +32,21 @@ const authConfig = {
       }
       return session;
     },
-    async jwt({ token, user }: { token: JWT; user?: any }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.role = user.role;
       }
       return token;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({
+      user,
+      account,
+      profile,
+    }: {
+      user: User;
+      account?: Account | null;
+      profile?: Profile;
+    }) {
       // Assign default role when user signs up
       if (account?.provider === "google" && !user.role) {
         user.role = "user"; // Set default role for new users

@@ -1,15 +1,16 @@
-import { signOut } from "../_lib/auth";
+"use client";
+
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import Image from "next/image";
 
-interface NavProps {
-  user?: {
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  } | null;
-}
+export default function Nav() {
+  const { data: session, status } = useSession();
+  const user = session?.user;
 
-export default function Nav({ user }: NavProps) {
+  const handleSignOut = async () => {
+    await nextAuthSignOut();
+  };
+
   return (
     <header className="glass-nav sticky top-0 z-10">
       <div className="container mx-auto px-4 py-3">
@@ -28,7 +29,12 @@ export default function Nav({ user }: NavProps) {
           </div>
 
           {/* User Section */}
-          {user && (
+          {status === "loading" ? (
+            <div className="flex items-center gap-3">
+              <div className="animate-pulse bg-gray-300 rounded-full w-8 h-8"></div>
+              <div className="animate-pulse bg-gray-300 rounded w-20 h-4"></div>
+            </div>
+          ) : user ? (
             <div className="flex items-center gap-3">
               {/* User Avatar & Name */}
               <div className="flex items-center gap-2 sm:gap-3">
@@ -51,18 +57,14 @@ export default function Nav({ user }: NavProps) {
               </div>
 
               {/* Sign Out Button */}
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut();
-                }}
+              <button
+                onClick={handleSignOut}
+                className="btn-glass text-xs sm:text-sm"
               >
-                <button type="submit" className="btn-glass text-xs sm:text-sm">
-                  Sign Out
-                </button>
-              </form>
+                Sign Out
+              </button>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

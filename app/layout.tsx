@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import Nav from "./_components/Nav";
-import { auth } from "./_lib/auth";
+import SessionProvider from "./_components/SessionProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,17 +20,18 @@ export const metadata: Metadata = {
   description: "Matching clients with freelancers",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
   return (
     <html lang="en" className="light">
       <body className={`${inter.variable} ${poppins.variable}`}>
-        <Nav user={session?.user} />
-        <main>{children}</main>
+        <SessionProvider>
+          <Nav />
+          <main>{children}</main>
+        </SessionProvider>
       </body>
     </html>
   );
