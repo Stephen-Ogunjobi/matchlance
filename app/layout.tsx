@@ -3,6 +3,7 @@ import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import Nav from "./_components/Nav";
 import SessionProvider from "./_components/SessionProvider";
+import { ModalContextProvider } from "./_context/ModalContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,7 +31,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${poppins.variable}`}>
         <SessionProvider>
           <Nav />
-          <main>{children}</main>
+          <ModalContextProvider>{children}</ModalContextProvider>
         </SessionProvider>
       </body>
     </html>

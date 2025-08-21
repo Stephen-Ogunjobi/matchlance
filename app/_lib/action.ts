@@ -32,3 +32,19 @@ export async function setUserRole(role: string) {
     redirect("/freelancers");
   }
 }
+
+// export async function createNewJob(creatorId: string){
+//   const session = await auth()
+//   const role = session?.user.role
+//   if(role !== "client") {
+//     throw new Error("Only clients can create jobs")
+//   }
+
+//   try{
+//     await prisma.jobs.create({
+//       data:{
+
+//       }
+//     })
+//   }
+// }

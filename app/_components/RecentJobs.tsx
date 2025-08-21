@@ -1,4 +1,4 @@
-import { Plus, Briefcase, MapPin, Clock, DollarSign } from "lucide-react";
+import { Briefcase, MapPin, Clock, DollarSign } from "lucide-react";
 export default function RecentJobs() {
   const recentJobs = [
     {

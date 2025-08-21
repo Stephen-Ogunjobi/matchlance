@@ -4,11 +4,31 @@ import { Briefcase, Star, MapPin, Clock } from "lucide-react";
 import RecentJobs from "../_components/RecentJobs";
 import TopTalent from "../_components/TopTalent";
 import GreetingsSection from "../_components/GreetingsSection";
+import Modal from "../_components/Modal";
+import JobForm from "../_components/JobForm";
+import { useModal } from "../_context/ModalContext";
 
 export default function ClientsPage() {
+  const { isOpen } = useModal();
+
   return (
     <div className="min-h-screen bg-gradient pt-0">
       <GreetingsSection />
+
+      {/* Modal for Job Creation */}
+      {isOpen && (
+        <Modal>
+          <div className="space-y-4">
+            <h2
+              className="text-2xl font-bold mb-6"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Post a New Job
+            </h2>
+            <JobForm />
+          </div>
+        </Modal>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
