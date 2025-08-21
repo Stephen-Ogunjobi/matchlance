@@ -238,3 +238,5 @@ npx prisma db push --force-reset  # Reset database completely
 6. **Use UUIDs for IDs in Supabase: `@db.Uuid`**
 
 This setup gives you a fully functional Prisma + Supabase integration with Next.js! 🚀
+
+set "DATABASE_URL=postgresql://postgres.lxaflxqnfvjrplkvlajt:13FQW4IDbL8CTiub@aws-1-sa-east-1.pooler.supabase.com:5432/postgres" && npx prisma db pull

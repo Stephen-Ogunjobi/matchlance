@@ -11,6 +11,8 @@ export async function setUserRole(role: string) {
     throw new Error("You must be logged in");
   }
 
+  console.log(role);
+
   try {
     await prisma.user.update({
       where: { id: session.user.id },
@@ -18,14 +20,15 @@ export async function setUserRole(role: string) {
     });
 
     console.log(`Successfully set user ${session.user.id} role to ${role}`);
-
-    if (role === "client") {
-      redirect("/clients");
-    } else {
-      redirect("/freelancers");
-    }
   } catch (error) {
     console.log(error);
     throw new Error("Failed to set user role");
+  }
+
+  // Redirect after successful database update
+  if (role === "client") {
+    redirect("/clients");
+  } else {
+    redirect("/freelancers");
   }
 }

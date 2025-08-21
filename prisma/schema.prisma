@@ -5,40 +5,40 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   email         String    @unique @db.VarChar
-  emailVerified DateTime? @map("email_verified") @db.Timestamptz(6)
   name          String?   @db.VarChar
   image         String?   @db.VarChar
   role          String    @default("user") @db.VarChar
-  updatedAt DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
-  accounts  Account[]
-  sessions  Session[]
+  updatedAt     DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
+  emailVerified DateTime? @map("email_verified") @db.Timestamptz(6)
+  accounts      Account[]
+  sessions      Session[]
 
   @@map("users")
 }
 
 model Account {
-  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId            String  @map("user_id") @db.Uuid
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
   type              String
   provider          String
-  providerAccountId String  @map("provider_account_id")
+  providerAccountId String   @map("provider_account_id")
   refresh_token     String?
   access_token      String?
-  expires_at        Int?    @map("expires_at")
+  expires_at        Int?     @map("expires_at")
   token_type        String?
   scope             String?
   id_token          String?
   session_state     String?
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("account")
