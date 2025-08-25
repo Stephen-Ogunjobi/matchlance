@@ -5,12 +5,18 @@ import { PrismaClient } from "@prisma/client";
 import type { Session, User, Account, Profile } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
-const prisma = new PrismaClient();
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 const authConfig = {
-  adapter: PrismaAdapter(prisma), // Re-enabled - Prisma client is working!
+  adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "jwt" as const, // Keep JWT for performance
+    strategy: "jwt" as const,
   },
   providers: [
     Google({
@@ -25,6 +31,7 @@ const authConfig = {
     async redirect({ baseUrl }: { url: string; baseUrl: string }) {
       return baseUrl;
     },
+    //adding id and role to session and token(jwt)
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;

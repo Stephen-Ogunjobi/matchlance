@@ -1,9 +1,15 @@
-import { auth } from "../_lib/auth";
-import Nav from "./Nav";
+"use client";
+
+import { useSession } from "next-auth/react";
 import RoleBtn from "./RoleBtn";
 
-export default async function RolePage() {
-  const session = await auth();
+export default function RolePage() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient">
       {/* Main Content */}

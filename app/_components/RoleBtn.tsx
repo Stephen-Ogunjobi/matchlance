@@ -10,7 +10,12 @@ export default function RoleBtn({ role }: RoleBtnProps) {
   const isClient = role === "client";
 
   const handleRole = async () => {
-    await setUserRole(role);
+    try {
+      await setUserRole(role);
+    } catch (error) {
+      console.error("Error in setUserRole:", error);
+      throw new Error("Failed to set role");
+    }
   };
 
   return (

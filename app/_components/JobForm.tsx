@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useModal } from "../_context/ModalContext";
+import { createNewJob } from "../_lib/action";
 
 interface FormInputs {
   title: string;
@@ -27,13 +29,38 @@ export default function JobForm() {
     register,
     formState: { errors, isSubmitting },
     setValue,
-    watch,
+    reset,
   } = useForm<FormInputs>({ resolver: zodResolver(formSchema) });
 
   const [deadline, setDeadline] = useState(new Date());
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  function onSubmit(data: FormInputs) {
-    console.log(data);
+  const { handleClose } = useModal();
+
+  async function onSubmit(data: FormInputs) {
+    try {
+      setSubmitError(null);
+      const result = await createNewJob(data);
+
+      if (result.success) {
+        setSubmitSuccess(true);
+        // Reset form
+        reset();
+        setDeadline(new Date());
+
+        // Close modal after a short delay to show success message
+        setTimeout(() => {
+          handleClose();
+          setSubmitSuccess(false);
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Error submitting job:", error);
+      setSubmitError(
+        error instanceof Error ? error.message : "Failed to create job"
+      );
+    }
   }
 
   const handleDeadlineChange = (date: Date | null) => {
@@ -43,8 +70,61 @@ export default function JobForm() {
     }
   };
 
+  if (submitSuccess) {
+    return (
+      <div className="text-center py-8">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg
+            className="w-8 h-8 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          Job Posted Successfully!
+        </h3>
+        <p className="text-gray-600">
+          Your job has been created and is now visible to freelancers.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {submitError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-red-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-800">{submitError}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-4">
         <div>
           <label
